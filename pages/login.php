@@ -89,6 +89,7 @@
 
             <form action="../action/login.php" method="POST">
                 <br>
+                <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
                 <div class="form-floating">
                     <input name="username" type="text" class="form-control" id="floatingInput" placeholder="Username" required>
                     <br>

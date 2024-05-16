@@ -1,16 +1,20 @@
 <?php
 session_start();
 include('../config/connection.php');
+include('../helper/validasi.php');
+
+// Validasi input
+checked($_POST['username'], 'login.php', "Username mengandung karakter khusus.");
+checked($_POST['password'], 'login.php', "Password mengandung karakter khusus.");
+if (empty($_POST['username']) || empty($_POST['password'])) {
+  header('location: ../login.php?message=Username atau password tidak boleh kosong.');
+  exit();
+}
+
 
 // Menerima input dari form
 $username = $_POST['username'];
 $password = $_POST['password'];
-
-// Validasi input
-if (empty($username) || empty($password)) {
-  header('location: ../login.php?message=Username atau password tidak boleh kosong.');
-  exit();
-}
 
 // Membuat query
 $query = "SELECT * FROM tb_user WHERE username=?";
@@ -26,6 +30,15 @@ if ($result->num_rows > 0) {
   if (password_verify($password, $row['password'])) {
     // Jika cocok, set session username dan arahkan ke dashboard sesuai level
     $_SESSION['username'] = $username;
+
+    // Set cookie moodleID
+    $moodleID = $row['user_id']; // Misalnya, menggunakan ID pengguna dari database
+    setcookie("moodleID", $moodleID, time() + (86400 * 30), "/");
+
+    // Set cookie Moodlesession
+    $moodleSession = session_id(); // Menggunakan token sesi PHP yang dihasilkan secara otomatis
+    setcookie("Moodlesession", $moodleSession, time() + (86400 * 30), "/");
+
     switch ($row['level']) {
       case 'admin':
         header('location: ../pages/dashboard_admin.php');
